@@ -234,7 +234,7 @@ def parse_args():
 def docker_build_image(image_name: str, filepath: Path) -> DockerImage:
     # context = filepath.parent
     docker_image = DockerImage(image_name)
-    build_cmd = f"docker build --network=host -t {image_name} -f {filepath}"
+    build_cmd = f"docker build --network=host -t {image_name} {filepath}"
     logging.info("Will build image with cmd: '%s'", build_cmd)
     subprocess.check_call(
         build_cmd,
@@ -327,7 +327,7 @@ def main():
 
     image_name = "clickhouse/libfuzzer-test"  # get_image_name(check_name)
     docker_image = docker_build_image(
-        image_name, Path("../../docker/test/libfuzzer/Dockerfile")
+        image_name, Path("../../docker/test/libfuzzer/")
     )  # get_image_with_version(reports_path, image_name)
 
     fuzzers_tmp_path = os.path.join(temp_path, "fuzzers_tmp")
