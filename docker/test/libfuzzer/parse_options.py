@@ -20,40 +20,42 @@ import sys
 
 
 def parse_options(options_file_path, options_section):
-  """Parses the given file and returns options from the given section."""
-  parser = configparser.ConfigParser()
-  parser.read(options_file_path)
+    """Parses the given file and returns options from the given section."""
+    parser = configparser.ConfigParser()
+    parser.read(options_file_path)
 
-  if not parser.has_section(options_section):
-    return None
+    if not parser.has_section(options_section):
+        return None
 
-  options = parser[options_section]
+    options = parser[options_section]
 
-  if options_section == 'libfuzzer':
-    options_string = ' '.join(
-        '-%s=%s' % (key, value) for key, value in options.items())
-  else:
-    # Sanitizer options.
-    options_string = ':'.join(
-        '%s=%s' % (key, value) for key, value in options.items())
+    if options_section == "libfuzzer":
+        options_string = " ".join(
+            "-%s=%s" % (key, value) for key, value in options.items()
+        )
+    else:
+        # Sanitizer options.
+        options_string = ":".join(
+            "%s=%s" % (key, value) for key, value in options.items()
+        )
 
-  return options_string
+    return options_string
 
 
 def main():
-  """Processes the arguments and prints the options in the correct format."""
-  if len(sys.argv) < 3:
-    sys.stderr.write('Usage: %s <path_to_options_file> <options_section>\n' %
-                     sys.argv[0])
-    return 1
+    """Processes the arguments and prints the options in the correct format."""
+    if len(sys.argv) < 3:
+        sys.stderr.write(
+            "Usage: %s <path_to_options_file> <options_section>\n" % sys.argv[0]
+        )
+        return 1
 
-  options = parse_options(sys.argv[1], sys.argv[2])
-  if options is not None:
-    print(options)
+    options = parse_options(sys.argv[1], sys.argv[2])
+    if options is not None:
+        print(options)
 
-  return 0
+    return 0
 
 
 if __name__ == "__main__":
-  sys.exit(main())
-  
+    sys.exit(main())

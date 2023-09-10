@@ -79,13 +79,13 @@ def get_run_command(
     fuzzers_path: str,
     repo_path: str,
     result_path: str,
-#    server_log_path: str,
+    #    server_log_path: str,
     kill_timeout: int,
     additional_envs: List[str],
     ci_logs_args: str,
     image: DockerImage,
-#    flaky_check: bool,
-#    tests_to_run: List[str],
+    #    flaky_check: bool,
+    #    tests_to_run: List[str],
 ) -> str:
     additional_options = ["--hung-check"]
     additional_options.append("--print-time")
@@ -120,9 +120,9 @@ def get_run_command(
         f"docker run --volume={fuzzers_path}:/fuzzers "
         f"{ci_logs_args}"
         f"--volume={repo_path}/tests:/usr/share/clickhouse-test "
-#        f"{volume_with_broken_test}"
+        #        f"{volume_with_broken_test}"
         f"--volume={result_path}:/test_output "
-#        f"--volume={server_log_path}:/var/log/clickhouse-server "
+        #        f"--volume={server_log_path}:/var/log/clickhouse-server "
         f"--cap-add=SYS_PTRACE {env_str} {additional_options_str} {image}"
     )
 
@@ -227,6 +227,7 @@ def parse_args():
     )
     return parser.parse_args()
 
+
 def docker_build_image(image_name: str, filepath: Path) -> None:
     context = filepath.parent
     build_cmd = f"docker build --network=host -t {image_name} -f {filepath}"
@@ -235,6 +236,7 @@ def docker_build_image(image_name: str, filepath: Path) -> None:
         build_cmd,
         shell=True,
     )
+
 
 def main():
     logging.basicConfig(level=logging.INFO)
@@ -317,8 +319,10 @@ def main():
     #             )
     #         sys.exit(0)
 
-    image_name = "clickhouse/libfuzzer-test" # get_image_name(check_name)
-    docker_image = docker_build_image(image_name, "../../docker/test/libfuzzer/Dockerfile") # get_image_with_version(reports_path, image_name)
+    image_name = "clickhouse/libfuzzer-test"  # get_image_name(check_name)
+    docker_image = docker_build_image(
+        image_name, "../../docker/test/libfuzzer/Dockerfile"
+    )  # get_image_with_version(reports_path, image_name)
 
     fuzzers_tmp_path = os.path.join(temp_path, "fuzzers_tmp")
     if not os.path.exists(fuzzers_tmp_path):
@@ -338,7 +342,6 @@ def main():
         os.rename(fuzzer_path, os.path.join(fuzzer_dst, fuzzer))
 
     os.rmdir(fuzzers_tmp_path)
-
 
     # server_log_path = os.path.join(temp_path, "server_log")
     # if not os.path.exists(server_log_path):
@@ -366,13 +369,13 @@ def main():
         fuzzers_path,
         repo_path,
         result_path,
-#        server_log_path,
+        #        server_log_path,
         kill_timeout,
         additional_envs,
         ci_logs_args,
         docker_image,
-#        flaky_check,
-#        tests_to_run,
+        #        flaky_check,
+        #        tests_to_run,
     )
     logging.info("Going to run func tests: %s", run_command)
 
