@@ -229,12 +229,14 @@ def parse_args():
 
 def docker_build_image(image_name: str, filepath: Path) -> None:
     context = filepath.parent
+    docker_image = DockerImage(image_name)
     build_cmd = f"docker build --network=host -t {image_name} -f {filepath}"
     logging.info("Will build image with cmd: '%s'", build_cmd)
     subprocess.check_call(
         build_cmd,
         shell=True,
     )
+    return docker_image
 
 def main():
     logging.basicConfig(level=logging.INFO)
@@ -253,7 +255,8 @@ def main():
 
     # flaky_check = "flaky" in check_name.lower()
 
-    run_changed_tests = flaky_check or validate_bugfix_check
+    #run_changed_tests = flaky_check or validate_bugfix_check
+    run_changed_tests = validate_bugfix_check
     gh = Github(get_best_robot_token(), per_page=100)
 
     # For validate_bugfix_check we need up to date information about labels, so pr_event_from_api is used
@@ -318,7 +321,7 @@ def main():
     #         sys.exit(0)
 
     image_name = "clickhouse/libfuzzer-test" # get_image_name(check_name)
-    docker_image = docker_build_image(image_name, "../../docker/test/libfuzzer/Dockerfile") # get_image_with_version(reports_path, image_name)
+    docker_image = docker_build_image(image_name, Path("../../docker/test/libfuzzer/Dockerfile")) # get_image_with_version(reports_path, image_name)
 
     fuzzers_tmp_path = os.path.join(temp_path, "fuzzers_tmp")
     if not os.path.exists(fuzzers_tmp_path):
@@ -393,9 +396,9 @@ def main():
     ci_logs_credentials.clean_ci_logs_from_credentials(Path(run_log_path))
     s3_helper = S3Helper()
 
-    state, description, test_results, additional_logs = process_results(
-        result_path, server_log_path
-    )
+    # state, description, test_results, additional_logs = process_results(
+    #     result_path, server_log_path
+    # )
     state = override_status(state, check_name, invert=validate_bugfix_check)
 
     ch_helper = ClickHouseHelper()
@@ -415,12 +418,13 @@ def main():
             commit, state, report_url, description, check_name_with_group, pr_info
         )
     elif args.post_commit_status == "file":
-        post_commit_status_to_file(
-            post_commit_path,
-            description,
-            state,
-            report_url,
-        )
+        pass
+        # post_commit_status_to_file(
+        #     post_commit_path,
+        #     description,
+        #     state,
+        #     report_url,
+        # )
     else:
         raise Exception(
             f'Unknown post_commit_status option "{args.post_commit_status}"'
