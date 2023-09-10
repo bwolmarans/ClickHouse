@@ -228,7 +228,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def docker_build_image(image_name: str, filepath: Path) -> None:
+def docker_build_image(image_name: str, filepath: Path) -> DockerImage:
     context = filepath.parent
     docker_image = DockerImage(image_name)
     build_cmd = f"docker build --network=host -t {image_name} -f {filepath}"
@@ -384,71 +384,70 @@ def main():
 
     sys.exit(0)
 
-    with TeePopen(run_command, run_log_path) as process:
-        retcode = process.wait()
-        if retcode == 0:
-            logging.info("Run successfully")
-        else:
-            logging.info("Run failed")
+    # with TeePopen(run_command, run_log_path) as process:
+    #     retcode = process.wait()
+    #     if retcode == 0:
+    #         logging.info("Run successfully")
+    #     else:
+    #         logging.info("Run failed")
 
-    try:
-        subprocess.check_call(f"sudo chown -R ubuntu:ubuntu {temp_path}", shell=True)
-    except subprocess.CalledProcessError:
-        logging.warning("Failed to change files owner in %s, ignoring it", temp_path)
+    # try:
+    #     subprocess.check_call(f"sudo chown -R ubuntu:ubuntu {temp_path}", shell=True)
+    # except subprocess.CalledProcessError:
+    #     logging.warning("Failed to change files owner in %s, ignoring it", temp_path)
 
-    ci_logs_credentials.clean_ci_logs_from_credentials(Path(run_log_path))
-    s3_helper = S3Helper()
+    # ci_logs_credentials.clean_ci_logs_from_credentials(Path(run_log_path))
+    # s3_helper = S3Helper()
 
     # state, description, test_results, additional_logs = process_results(
     #     result_path, server_log_path
     # )
-    state = override_status(state, check_name, invert=validate_bugfix_check)
+    # state = override_status(state, check_name, invert=validate_bugfix_check)
 
-    ch_helper = ClickHouseHelper()
+    # ch_helper = ClickHouseHelper()
 
-    report_url = upload_results(
-        s3_helper,
-        pr_info.number,
-        pr_info.sha,
-        test_results,
-        [run_log_path] + additional_logs,
-        check_name_with_group,
-    )
+    # report_url = upload_results(
+    #     s3_helper,
+    #     pr_info.number,
+    #     pr_info.sha,
+    #     test_results,
+    #     [run_log_path] + additional_logs,
+    #     check_name_with_group,
+    # )
 
-    print(f"::notice:: {check_name} Report url: {report_url}")
-    if args.post_commit_status == "commit_status":
-        post_commit_status(
-            commit, state, report_url, description, check_name_with_group, pr_info
-        )
-    elif args.post_commit_status == "file":
-        pass
-        # post_commit_status_to_file(
-        #     post_commit_path,
-        #     description,
-        #     state,
-        #     report_url,
-        # )
-    else:
-        raise Exception(
-            f'Unknown post_commit_status option "{args.post_commit_status}"'
-        )
+    # print(f"::notice:: {check_name} Report url: {report_url}")
+    # if args.post_commit_status == "commit_status":
+    #     post_commit_status(
+    #         commit, state, report_url, description, check_name_with_group, pr_info
+    #     )
+    # elif args.post_commit_status == "file":
+    #     post_commit_status_to_file(
+    #         post_commit_path,
+    #         description,
+    #         state,
+    #         report_url,
+    #     )
+    # else:
+    #     raise Exception(
+    #         f'Unknown post_commit_status option "{args.post_commit_status}"'
+    #     )
 
-    prepared_events = prepare_tests_results_for_clickhouse(
-        pr_info,
-        test_results,
-        state,
-        stopwatch.duration_seconds,
-        stopwatch.start_time_str,
-        report_url,
-        check_name_with_group,
-    )
-    ch_helper.insert_events_into(db="default", table="checks", events=prepared_events)
+    # prepared_events = prepare_tests_results_for_clickhouse(
+    #     pr_info,
+    #     test_results,
+    #     state,
+    #     stopwatch.duration_seconds,
+    #     stopwatch.start_time_str,
+    #     report_url,
+    #     check_name_with_group,
+    # )
+    # ch_helper.insert_events_into(db="default", table="checks", events=prepared_events)
 
-    if state != "success":
-        if FORCE_TESTS_LABEL in pr_info.labels:
-            print(f"'{FORCE_TESTS_LABEL}' enabled, will report success")
-        else:
-            sys.exit(1)
+    # if state != "success":
+    #     if FORCE_TESTS_LABEL in pr_info.labels:
+    #         print(f"'{FORCE_TESTS_LABEL}' enabled, will report success")
+    #     else:
+    #         sys.exit(1)
 
 
 if __name__ == "__main__":
