@@ -17,28 +17,28 @@ from github import Github
 from build_download_helper import download_fuzzers
 from clickhouse_helper import (
     CiLogsCredentials,
-    ClickHouseHelper,
-    prepare_tests_results_for_clickhouse,
+    # ClickHouseHelper,
+    # prepare_tests_results_for_clickhouse,
 )
 from commit_status_helper import (
-    NotSet,
+    # NotSet,
     RerunHelper,
     get_commit,
-    override_status,
-    post_commit_status,
-    post_commit_status_to_file,
+    # override_status,
+    # post_commit_status,
+    # post_commit_status_to_file,
     update_mergeable_check,
 )
-from docker_pull_helper import DockerImage, get_image_with_version
-from download_release_packages import download_last_release
+from docker_pull_helper import DockerImage #, get_image_with_version
+# from download_release_packages import download_last_release
 from env_helper import TEMP_PATH, REPO_COPY, REPORTS_PATH
 from get_robot_token import get_best_robot_token
-from pr_info import FORCE_TESTS_LABEL, PRInfo
+from pr_info import PRInfo #, FORCE_TESTS_LABEL
 from report import TestResults, read_test_results
-from s3_helper import S3Helper
+# from s3_helper import S3Helper
 from stopwatch import Stopwatch
-from tee_popen import TeePopen
-from upload_result_helper import upload_results
+# from tee_popen import TeePopen
+# from upload_result_helper import upload_results
 
 NO_CHANGES_MSG = "Nothing to run"
 
@@ -75,7 +75,7 @@ def get_additional_envs(check_name, run_by_hash_num, run_by_hash_total):
 
 
 def get_run_command(
-    check_name: str,
+    #    check_name: str,
     fuzzers_path: str,
     repo_path: str,
     result_path: str,
@@ -229,7 +229,7 @@ def parse_args():
 
 
 def docker_build_image(image_name: str, filepath: Path) -> DockerImage:
-    context = filepath.parent
+    # context = filepath.parent
     docker_image = DockerImage(image_name)
     build_cmd = f"docker build --network=host -t {image_name} -f {filepath}"
     logging.info("Will build image with cmd: '%s'", build_cmd)
@@ -354,7 +354,7 @@ def main():
     if not os.path.exists(result_path):
         os.makedirs(result_path)
 
-    run_log_path = os.path.join(result_path, "run.log")
+    # run_log_path = os.path.join(result_path, "run.log")
 
     additional_envs = get_additional_envs(
         check_name, run_by_hash_num, run_by_hash_total
@@ -368,7 +368,7 @@ def main():
     )
 
     run_command = get_run_command(
-        check_name,
+        #        check_name,
         fuzzers_path,
         repo_path,
         result_path,
