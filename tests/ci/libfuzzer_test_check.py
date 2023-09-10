@@ -324,7 +324,8 @@ def main():
 
     image_name = "clickhouse/libfuzzer-test"  # get_image_name(check_name)
     docker_image = docker_build_image(
-        image_name, "../../docker/test/libfuzzer/Dockerfile"
+        image_name,
+        Path("../../docker/test/libfuzzer/Dockerfile")
     )  # get_image_with_version(reports_path, image_name)
 
     fuzzers_tmp_path = os.path.join(temp_path, "fuzzers_tmp")
