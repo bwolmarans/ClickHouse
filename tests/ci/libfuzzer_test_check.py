@@ -344,7 +344,9 @@ def main():
     for fuzzer in os.listdir(fuzzers_tmp_path):
         fuzzer_path = os.path.join(fuzzers_path, fuzzer)
         os.makedirs(fuzzer_path)
-        os.rename(os.path.join(fuzzers_tmp_path, fuzzer), os.path.join(fuzzer_path, fuzzer))
+        os.rename(
+            os.path.join(fuzzers_tmp_path, fuzzer), os.path.join(fuzzer_path, fuzzer)
+        )
 
     os.rmdir(fuzzers_tmp_path)
 
