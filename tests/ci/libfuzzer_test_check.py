@@ -341,11 +341,10 @@ def main():
     download_fuzzers(check_name, reports_path, fuzzers_tmp_path)
 
     fuzzers_path = os.path.join(temp_path, "fuzzers")
-    for fuzzer_path in os.listdir(fuzzers_tmp_path):
-        fuzzer = os.path.basename(fuzzer_path)
-        fuzzer_dst = os.path.join(fuzzers_path, fuzzer)
-        os.makedirs(fuzzer_dst)
-        os.rename(fuzzer_path, os.path.join(fuzzer_dst, fuzzer))
+    for fuzzer in os.listdir(fuzzers_tmp_path):
+        fuzzer_path = os.path.join(fuzzers_path, fuzzer)
+        os.makedirs(fuzzer_path)
+        os.rename(os.path.join(fuzzers_tmp_path, fuzzer), os.path.join(fuzzer_path, fuzzer))
 
     os.rmdir(fuzzers_tmp_path)
 
