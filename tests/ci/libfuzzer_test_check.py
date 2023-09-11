@@ -340,7 +340,6 @@ def main():
     #     download_all_deb_packages(check_name, reports_path, packages_path)
     download_fuzzers(check_name, reports_path, fuzzers_path)
 
-
     # server_log_path = os.path.join(temp_path, "server_log")
     # if not os.path.exists(server_log_path):
     #     os.makedirs(server_log_path)
