@@ -8,6 +8,7 @@ import re
 import subprocess
 import sys
 import atexit
+import zipfile
 from pathlib import Path
 from typing import List, Tuple
 
@@ -334,11 +335,23 @@ def main():
     if not os.path.exists(fuzzers_path):
         os.makedirs(fuzzers_path)
 
-    # if validate_bugfix_check:
-    #     download_last_release(packages_path)
-    # else:
-    #     download_all_deb_packages(check_name, reports_path, packages_path)
     download_fuzzers(check_name, reports_path, fuzzers_path)
+    fuzzers = []
+    options = []
+    corpus = []
+    dict = []
+    for file in os.listdir(fuzzers_path):
+        if file.endswith("_fuzzer"):
+            fuzzers.append(file)
+        elif file.endswith(".options"):
+            options.append(file)
+        elif file.endswith(".dict"):
+            dict.append(file)
+        elif file.endswith("_seed_corpus.zip"):
+            fuzzer = file.removesuffix("_seed_corpus.zip")
+            corpus.append(fuzzer + ".in")
+            corpus_path = os.path.join(temp_path, fuzzer + ".in")
+            zipfile.ZipFile(os.path.join(temp_path, file), 'r').extractall(corpus_path)
 
     # server_log_path = os.path.join(temp_path, "server_log")
     # if not os.path.exists(server_log_path):
@@ -374,7 +387,7 @@ def main():
         #        flaky_check,
         #        tests_to_run,
     )
-    logging.info("Going to run func tests: %s", run_command)
+    logging.info("Going to run libFuzzer tests: %s", run_command)
 
     sys.exit(0)
 
