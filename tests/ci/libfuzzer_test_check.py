@@ -351,7 +351,7 @@ def main():
             fuzzer = file.removesuffix("_seed_corpus.zip")
             corpus.append(fuzzer + ".in")
             corpus_path = os.path.join(temp_path, fuzzer + ".in")
-            zipfile.ZipFile(os.path.join(temp_path, file), 'r').extractall(corpus_path)
+            zipfile.ZipFile(os.path.join(temp_path, file), "r").extractall(corpus_path)
 
     # server_log_path = os.path.join(temp_path, "server_log")
     # if not os.path.exists(server_log_path):
