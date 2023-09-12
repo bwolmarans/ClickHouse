@@ -42,6 +42,7 @@ from report import TestResults, read_test_results
 from stopwatch import Stopwatch
 
 from tee_popen import TeePopen
+
 # from upload_result_helper import upload_results
 
 NO_CHANGES_MSG = "Nothing to run"
@@ -344,7 +345,9 @@ def main():
             corpus_path = os.path.join(
                 fuzzers_path, file.removesuffix("_seed_corpus.zip") + ".in"
             )
-            zipfile.ZipFile(os.path.join(fuzzers_path, file), "r").extractall(corpus_path)
+            zipfile.ZipFile(os.path.join(fuzzers_path, file), "r").extractall(
+                corpus_path
+            )
 
     # server_log_path = os.path.join(temp_path, "server_log")
     # if not os.path.exists(server_log_path):
