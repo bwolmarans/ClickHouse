@@ -11,7 +11,7 @@ DEBUGGER=${DEBUGGER:-}
 function run_fuzzer() {
     FUZZER=$1
     CORPUS_DIR=""
-    if [ -d "${FUZZER}.in"]; then
+    if [ -d "${FUZZER}.in" ]; then
         CORPUS_DIR="${FUZZER}.in"
     fi
 
