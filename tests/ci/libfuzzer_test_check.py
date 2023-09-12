@@ -339,7 +339,9 @@ def main():
 
     for file in os.listdir(fuzzers_path):
         if file.endswith("_seed_corpus.zip"):
-            corpus_path = os.path.join(temp_path, file.removesuffix("_seed_corpus.zip") + ".in")
+            corpus_path = os.path.join(
+                temp_path, file.removesuffix("_seed_corpus.zip") + ".in"
+            )
             zipfile.ZipFile(os.path.join(temp_path, file), "r").extractall(corpus_path)
 
     # server_log_path = os.path.join(temp_path, "server_log")
