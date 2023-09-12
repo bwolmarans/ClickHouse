@@ -46,6 +46,7 @@ class ArtifactsHelper:
         self._commit = commit
         assert SHA_REGEXP.match(self.commit)
         self.temp_path = ARTIFACTS_PATH
+        self.temp_path.mkdir(parents=True, exist_ok=True)
         self.s3_helper = s3_helper
         # The s3 prefix is done with trailing slash!
         self._s3_prefix = op.join(s3_prefix, self.commit, "")
