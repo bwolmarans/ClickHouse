@@ -336,21 +336,10 @@ def main():
         os.makedirs(fuzzers_path)
 
     download_fuzzers(check_name, reports_path, fuzzers_path)
-    fuzzers = []
-    options = []
-    corpus = []
-    dict = []
+
     for file in os.listdir(fuzzers_path):
-        if file.endswith("_fuzzer"):
-            fuzzers.append(file)
-        elif file.endswith(".options"):
-            options.append(file)
-        elif file.endswith(".dict"):
-            dict.append(file)
-        elif file.endswith("_seed_corpus.zip"):
-            fuzzer = file.removesuffix("_seed_corpus.zip")
-            corpus.append(fuzzer + ".in")
-            corpus_path = os.path.join(temp_path, fuzzer + ".in")
+        if file.endswith("_seed_corpus.zip"):
+            corpus_path = os.path.join(temp_path, file.removesuffix("_seed_corpus.zip") + ".in")
             zipfile.ZipFile(os.path.join(temp_path, file), "r").extractall(corpus_path)
 
     # server_log_path = os.path.join(temp_path, "server_log")
