@@ -13,8 +13,15 @@ from typing import Any, List, Optional, Set, Tuple, Union
 
 from github import Github
 
+from artifacts_helper import ArtifactsHelper
 from clickhouse_helper import ClickHouseHelper, prepare_tests_results_for_clickhouse
 from commit_status_helper import format_description, get_commit, post_commit_status
+from docker_images_helper import (
+    CHANGED_IMAGES,
+    ImagesDict,
+    IMAGES_FILE_PATH,
+    get_images_dict,
+)
 from env_helper import GITHUB_WORKSPACE, RUNNER_TEMP, GITHUB_RUN_URL
 from get_robot_token import get_best_robot_token, get_parameter_from_ssm
 from pr_info import PRInfo
@@ -23,7 +30,6 @@ from s3_helper import S3Helper
 from stopwatch import Stopwatch
 from tee_popen import TeePopen
 from upload_result_helper import upload_results
-from docker_images_helper import ImagesDict, IMAGES_FILE_PATH, get_images_dict
 
 NAME = "Push to Dockerhub"
 
@@ -378,9 +384,11 @@ def main():
     if args.suffix:
         global NAME
         NAME += f" {args.suffix}"
-        changed_json = os.path.join(TEMP_PATH, f"changed_images_{args.suffix}.json")
+        artifact_name = CHANGED_IMAGES.format(args.suffix)
     else:
-        changed_json = os.path.join(TEMP_PATH, "changed_images.json")
+        artifact_name = "changed_images"
+
+    changed_json = Path(TEMP_PATH) / f"{artifact_name}.json"
 
     if args.push:
         subprocess.check_output(  # pylint: disable=unexpected-keyword-arg
@@ -453,12 +461,15 @@ def main():
     url = upload_results(s3_helper, pr_info.number, pr_info.sha, test_results, [], NAME)
 
     print(f"::notice ::Report url: {url}")
+    ah = ArtifactsHelper(s3_helper, pr_info.sha)
+    ah.upload(artifact_name, changed_json)
 
     if not args.reports:
         return
 
     gh = Github(get_best_robot_token(), per_page=100)
     commit = get_commit(gh, pr_info.sha)
+    ah.post_commit_status(commit, ah.s3_index_url)
     post_commit_status(commit, status, url, description, NAME, pr_info)
 
     prepared_events = prepare_tests_results_for_clickhouse(

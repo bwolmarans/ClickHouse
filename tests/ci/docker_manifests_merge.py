@@ -6,16 +6,19 @@ import logging
 import os
 import subprocess
 
+from pathlib import Path
 from typing import List, Dict, Tuple
+
 from github import Github
 
+from artifacts_helper import ArtifactsHelper
 from clickhouse_helper import (
     ClickHouseHelper,
     prepare_tests_results_for_clickhouse,
     CHException,
 )
 from commit_status_helper import format_description, get_commit, post_commit_status
-from docker_images_helper import IMAGES_FILE_PATH, get_image_names
+from docker_images_helper import CHANGED_IMAGES, IMAGES_FILE_PATH, get_image_names
 from env_helper import RUNNER_TEMP, GITHUB_WORKSPACE
 from get_robot_token import get_best_robot_token, get_parameter_from_ssm
 from git_helper import Runner
@@ -26,7 +29,6 @@ from stopwatch import Stopwatch
 from upload_result_helper import upload_results
 
 NAME = "Push multi-arch images to Dockerhub"
-CHANGED_IMAGES = "changed_images_{}.json"
 Images = Dict[str, List[str]]
 
 
@@ -47,7 +49,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--path",
-        type=str,
+        type=Path,
         default=RUNNER_TEMP,
         help="path to changed_images_*.json files",
     )
@@ -75,8 +77,8 @@ def parse_args() -> argparse.Namespace:
     return args
 
 
-def load_images(path: str, suffix: str) -> Images:
-    with open(os.path.join(path, CHANGED_IMAGES.format(suffix)), "rb") as images:
+def load_images(path: Path, suffix: str) -> Images:
+    with open(path / (CHANGED_IMAGES.format(suffix) + ".json"), "rb") as images:
         return json.load(images)  # type: ignore
 
 
@@ -254,9 +256,15 @@ def main():
             shell=True,
         )
 
+    pr_info = PRInfo()
+    s3_helper = S3Helper()
+
+    ah = ArtifactsHelper(s3_helper, pr_info.sha)
     to_merge = {}
     for suf in args.suffixes:
-        to_merge[suf] = load_images(args.path, suf)
+        artifact = CHANGED_IMAGES.format(suf)
+        ah.download(artifact, args.path)
+        to_merge[suf] = load_images(args.path / artifact, suf)
 
     changed_images = get_changed_images(check_sources(to_merge))
 
@@ -279,13 +287,11 @@ def main():
     except CHException as ex:
         logging.warning("Couldn't get proper tags for not changed images: %s", ex)
 
-    with open(
-        os.path.join(args.path, "changed_images.json"), "w", encoding="utf-8"
-    ) as ci:
+    changed_images_json = args.path / "changed_images.json"  # type: Path
+    with open(changed_images_json, "w", encoding="utf-8") as ci:
         json.dump(enriched_images, ci)
 
-    pr_info = PRInfo()
-    s3_helper = S3Helper()
+    ah.upload("changed_images", changed_images_json)
 
     url = upload_results(s3_helper, pr_info.number, pr_info.sha, test_results, [], NAME)
 
@@ -303,6 +309,7 @@ def main():
 
     gh = Github(get_best_robot_token(), per_page=100)
     commit = get_commit(gh, pr_info.sha)
+    ah.post_commit_status(commit, ah.s3_index_url)
     post_commit_status(commit, status, url, description, NAME, pr_info)
 
     prepared_events = prepare_tests_results_for_clickhouse(

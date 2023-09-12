@@ -6,6 +6,7 @@ import os
 from typing import Dict, List
 
 IMAGES_FILE_PATH = "docker/images.json"
+CHANGED_IMAGES = "changed_images_{}"
 
 ImagesDict = Dict[str, dict]
 
