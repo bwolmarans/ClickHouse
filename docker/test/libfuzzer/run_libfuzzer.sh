@@ -64,6 +64,9 @@ function run_fuzzer() {
     # bash -c "$CMD_LINE"
 }
 
+pwd
+ls -al
+
 for fuzzer in *_fuzzer; do
     if [ -f "$fuzzer" ] && [ -x "$fuzzer" ]; then
         run_fuzzer "$fuzzer"
