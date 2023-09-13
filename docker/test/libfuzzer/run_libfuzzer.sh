@@ -11,6 +11,9 @@ FUZZER_ARGS=${FUZZER_ARGS:-}
 
 function run_fuzzer() {
     FUZZER=$1
+
+    echo Running fuzzer "$FUZZER"
+
     CORPUS_DIR=""
     if [ -d "${FUZZER}.in" ]; then
         CORPUS_DIR="${FUZZER}.in"
