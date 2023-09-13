@@ -7,6 +7,7 @@
 # cd $OUT
 
 DEBUGGER=${DEBUGGER:-}
+FUZZER_ARGS=${FUZZER_ARGS:-}
 
 function run_fuzzer() {
     FUZZER=$1
