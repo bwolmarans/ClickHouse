@@ -33,6 +33,8 @@ RUN pip3 install Jinja2
 
 COPY * /
 
+ENV FUZZER_ARGS="-timeout=120"
+
 SHELL ["/bin/bash", "-c"]
 CMD set -o pipefail \
     && timeout -s 9 1h /run_libfuzzer.sh 2>&1 | ts "$(printf '%%Y-%%m-%%d %%H:%%M:%%S\t')" | tee main.log

@@ -65,7 +65,7 @@ function run_fuzzer() {
         CMD_LINE="$DEBUGGER $CMD_LINE"
     fi
 
-    # bash -c "$CMD_LINE"
+    bash -c "$CMD_LINE"
 }
 
 ls -al
