@@ -41,7 +41,7 @@ function run_fuzzer() {
         CUSTOM_LIBFUZZER_OPTIONS=$(/parse_options.py "$OPTIONS_FILE" libfuzzer)
     fi
 
-    CMD_LINE="$FUZZER $FUZZER_ARGS"
+    CMD_LINE="./$FUZZER $FUZZER_ARGS"
     CMD_LINE="$CMD_LINE $CORPUS_DIR"
 
     if [[ -n "$CUSTOM_LIBFUZZER_OPTIONS" ]]; then
