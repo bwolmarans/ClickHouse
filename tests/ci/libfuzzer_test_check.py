@@ -341,7 +341,9 @@ def main():
     download_fuzzers(check_name, reports_path, fuzzers_path)
 
     for file in os.listdir(fuzzers_path):
-        if file.endswith("_seed_corpus.zip"):
+        if file.endswith("_fuzzer"):
+            os.chmod(os.path.join(fuzzers_path, file), 0o777)
+        elif file.endswith("_seed_corpus.zip"):
             corpus_path = os.path.join(
                 fuzzers_path, file.removesuffix("_seed_corpus.zip") + ".in"
             )

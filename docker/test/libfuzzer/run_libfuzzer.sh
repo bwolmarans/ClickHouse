@@ -64,13 +64,10 @@ function run_fuzzer() {
     # bash -c "$CMD_LINE"
 }
 
-pwd
 ls -al
 
 for fuzzer in *_fuzzer; do
-    echo "$fuzzer"
     if [ -f "$fuzzer" ] && [ -x "$fuzzer" ]; then
-        echo "$fuzzer"
         run_fuzzer "$fuzzer"
     fi
 done
